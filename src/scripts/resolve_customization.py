@@ -11,8 +11,9 @@ Skill name is derived from the basename of the skill directory.
 
 Outputs merged JSON to stdout. Errors go to stderr.
 
-Requires Python 3.11+ (uses stdlib `tomllib`). No `uv`, no `pip install`,
-no virtualenv — plain `python3` is sufficient.
+Requires Python 3.9+. Uses stdlib `tomllib` on 3.11+ and falls back to
+the bundled minimal TOML parser (`_minimal_toml.py`) on 3.9/3.10.
+No `uv`, no `pip install`, no virtualenv — plain `python3` is sufficient.
 
   python3 resolve_customization.py --skill /abs/path/to/skill-dir
   python3 resolve_customization.py --skill ... --key agent
@@ -41,12 +42,11 @@ from pathlib import Path
 try:
     import tomllib
 except ImportError:
-    sys.stderr.write(
-        "error: Python 3.11+ is required (stdlib `tomllib` not found).\n"
-        "Install a newer Python or run the resolution manually per the\n"
-        "fallback instructions in the skill's SKILL.md.\n"
-    )
-    sys.exit(3)
+    # Python 3.9/3.10: stdlib tomllib is unavailable. Fall back to the
+    # bundled minimal parser, which supports the TOML subset BMad
+    # customize.toml files use.
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import _minimal_toml as tomllib  # type: ignore[no-redef]
 
 
 _MISSING = object()
