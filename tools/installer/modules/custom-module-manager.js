@@ -536,7 +536,16 @@ class CustomModuleManager {
         mod.cloneSha = cloneMetadata.sha || null;
         mod.rawInput = cloneMetadata.rawInput || null;
       }
+      // Cache under BOTH the resolved short code (e.g. "web") and the requested
+      // plugin name from marketplace.json (e.g. "bmad-web-skills"). Callers
+      // query by either form depending on how the module was selected
+      // (--modules uses the plugin name; --custom-source auto-add uses the
+      // short code). Caching under both prevents the same module from being
+      // installed twice when both names reach OfficialModules.install().
       CustomModuleManager._resolutionCache.set(mod.code, mod);
+      if (mod.pluginName && mod.pluginName !== mod.code) {
+        CustomModuleManager._resolutionCache.set(mod.pluginName, mod);
+      }
     }
 
     return resolved;

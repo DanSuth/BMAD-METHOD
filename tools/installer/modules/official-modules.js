@@ -340,6 +340,22 @@ class OfficialModules {
       if (fileTrackingCallback) fileTrackingCallback(helpTarget);
     }
 
+    // Place module.yaml at the module root so the installed tree is
+    // self-describing (parallel to module-help.csv above). The normal install
+    // path filters module.yaml out via copyModuleWithFiltering, but
+    // installFromResolution copies skill dirs individually and never visits
+    // the module root, so without this it would be missing entirely.
+    const yamlTarget = path.join(targetPath, 'module.yaml');
+    if (resolved.moduleYamlPath) {
+      // Strategies 1-4: copy the existing file
+      await fs.copy(resolved.moduleYamlPath, yamlTarget, { overwrite: true });
+      if (fileTrackingCallback) fileTrackingCallback(yamlTarget);
+    } else if (resolved.synthesizedModuleYaml) {
+      // Strategy 5: serialize synthesized content
+      await fs.writeFile(yamlTarget, yaml.stringify(resolved.synthesizedModuleYaml), 'utf8');
+      if (fileTrackingCallback) fileTrackingCallback(yamlTarget);
+    }
+
     // Create directories declared in module.yaml (strategies 1-4 may have these)
     if (!options.skipModuleInstaller) {
       await this.createModuleDirectories(resolved.code, bmadDir, options);

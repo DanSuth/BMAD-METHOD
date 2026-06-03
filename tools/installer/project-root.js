@@ -167,11 +167,13 @@ async function resolveInstalledModuleYaml(moduleName) {
 
   // Fallback: local custom-source modules store their source path in the
   // CustomModuleManager resolution cache populated during the same install run.
-  // Match by code OR name since callers may use either form.
+  // Match by code, name, OR pluginName — callers may use any of these forms
+  // (the resolved short code, the module.yaml display name, or the plugin name
+  // from marketplace.json that the user requested via --modules).
   try {
     const { CustomModuleManager } = require('./modules/custom-module-manager');
     for (const [, mod] of CustomModuleManager._resolutionCache) {
-      if ((mod.code === moduleName || mod.name === moduleName) && mod.localPath) {
+      if ((mod.code === moduleName || mod.name === moduleName || mod.pluginName === moduleName) && mod.localPath) {
         const found = await searchRoot(mod.localPath);
         if (found) return found;
       }
