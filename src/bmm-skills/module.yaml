@@ -27,7 +27,7 @@ user_skill_level:
 
 planning_artifacts: # Phase 1-3 artifacts
   prompt: "Where should planning artifacts be stored? (Brainstorming, Briefs, PRDs, UX Designs, Architecture, Epics)"
-  default: "{output_folder}/planning-artifacts"
+  default: "planning-artifacts"
   result: "{project-root}/{value}"
 
 implementation_artifacts: # Phase 4 artifacts and quick-dev flow output
